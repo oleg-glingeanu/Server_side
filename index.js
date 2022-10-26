@@ -5,19 +5,21 @@ const colors = require('colors');
 const schema = require('./database/schema/schema');
 const connectDB = require('./database/config/db');
 const cors = require('cors');
-const port = process.env.PORT;
+const port = 7000;
 
 const app = express();
 
 // Connect to db
 connectDB();
 app.use(cors());
-
+app.get('/', (req, res) =>{
+    res.send('App is running')
+})
 app.use(
     '/graphql', 
     graphqlHTTP({
         schema,
-        graphiql: 'development' === process.env.NODE_ENV,
+        graphiql: true,
 })
 );
 
