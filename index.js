@@ -14,7 +14,7 @@ import postRoutes from './Routes/posts.js';
 import authRoutes from './Routes/auth.js';
 import userRoutes from './Routes/users.js';
 import { verifyToken } from './middleware/auth.js';
-import { createPost } from './Controllers/postController.js'
+import { createPost, checkExpiry } from './Controllers/postController.js'
 import { register } from './Controllers/auth.js'
 
 /* CONFIG */
@@ -27,7 +27,7 @@ app.use(express.json())
 app.use(morgan("common"))
 app.use(bodyParser.json({limit: "30mb", extended: true}));
 app.use(bodyParser.urlencoded({limit: "30mb", extended: true}));
-app.use(cors());
+app.use(cors({origin: '*'}));
 app.use("/assets", express.static(path.join(__dirname, 'public/assets')))
 
 /* FILE STORAGE */
@@ -36,10 +36,10 @@ const storage = multer.diskStorage({
       cb(null, "public/assets");
     },
     filename: function (req, file, cb) {
-      cb(null, file.originalname);
+      cb(null, req.body.picturePath);
     },
   });
-  const upload = multer({ storage });
+const upload = multer({ storage });
 
 
 /* ROUTES WITH FILES */
@@ -53,12 +53,17 @@ app.use('/users', userRoutes )
 
 /* CONNECTION */
 const CONNECTION_URL = process.env.MONGO_URL
-const PORT = process.env.PORT || 6001;
+const PORT = process.env.PORT || 3001;
 mongoose.connect(CONNECTION_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {
     app.listen(PORT, () => console.log(`Server started ! \nServer is running on port http://localhost:${PORT}/`))
+
 })
 .catch((error)=> console.log(`${error} did not connect`))
 app.get('/', (req, res) => (res.send("Server Backend is running")));
+
+setInterval(function () {
+  checkExpiry();
+}, 300000 );

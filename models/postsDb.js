@@ -11,6 +11,11 @@ const postSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    expired: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     lastName: {
       type: String,
       required: true,
@@ -25,11 +30,23 @@ const postSchema = mongoose.Schema(
     },
     description: String,
     price: Number,
+    currentBid: {
+      type: Number,
+      default: 0,
+    },
     likes: {
       type: Map,
       of: Boolean,
     },
+    endTime:{
+      type: Date,
+      required: true,
+    },
     comments: {
+      type: Array,
+      default: [],
+    },
+    categories:{
       type: Array,
       default: [],
     },

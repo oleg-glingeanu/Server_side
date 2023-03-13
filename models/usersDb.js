@@ -33,6 +33,14 @@ const UserSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    reviews: {
+      type: Array,
+      default: [],
+    },
+    notifications: {
+      type: Array,
+      default: [],
+    },
     location: String,
     occupation: String,
     viewedProfile: Number,
