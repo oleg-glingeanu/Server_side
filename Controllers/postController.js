@@ -12,17 +12,22 @@ export const createPost = async (req, res) => {
         description,
         price,
         postDays,
+        tags,
+        shortDescription
         } = req.body;
       console.log(req.body);
+      const categoryArr = tags.split(",");
       const user = await User.findById(userId);
       const currentDate = new Date();
       const expiryDate = addDays(currentDate, postDays);
       const newPost = new Post({
         title,
+        categories: categoryArr,
         userId,
         firstName: user.firstName,
         lastName: user.lastName,
         description,
+        shortDescription,
         userPicturePath: user.picturePath,
         picturePath,
         price,
@@ -41,6 +46,7 @@ export const createPost = async (req, res) => {
 export const getPosts = async (req, res) => {
     try {
         const allPosts = await Post.find();
+        checkExpiry();
         return res.status(200).json(allPosts)
     } catch(error) {
         return res.status(404).json(error.message)
@@ -60,13 +66,13 @@ export const getPost = async (req, res) => {
 /* UPDATE */
 export const updateBid = async (req, res) => {
     try {
-        const { newBid } = req.body;
+        const { newBid, currentBidUserName  } = req.body;
         const { id } = req.params;
         console.log(req.body);
         const updatedPost = await Post.findByIdAndUpdate(
             id,
-            { currentBid:newBid},
-            { new: true }
+            { currentBid : newBid,currentBidUserName : currentBidUserName},
+            { new : true }
         );
         return res.status(200).json(updatedPost);
     }
@@ -112,7 +118,29 @@ export const checkExpiry = async (req, res) => {
                 console.log("This POST has not yet expired")
             }else{
                 console.log("This Post has expired")
-               await Post.findByIdAndDelete(element.id)
+                const notificationObject = {
+                    notificationUserID: "",
+                    notificationUserName: element.currentBidUserName,
+                    notification: `${element.currentBidUserName} has won the auction on ${element.title} with a bid of ${element.currentBid}`,
+                  }
+                  const user = await User.findById(element.userId);
+                  if(!user) {
+                    return res.status(404).json("User not found");
+                    }
+                
+                    const notifications = user.notifications || [];
+                    notifications.push(notificationObject);
+                
+                    const updatedUser = await User.findByIdAndUpdate(
+                        element.userId,
+                        {
+                            notifications: notifications
+                        },
+                        { new: true }
+                    )
+                    console.lof(json(updatedUser))
+                    updatedUser();
+                    await Post.findByIdAndDelete(element.id)
             }
             console.log("---------------------------------------");
         }

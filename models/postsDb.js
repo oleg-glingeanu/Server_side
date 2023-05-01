@@ -29,10 +29,15 @@ const postSchema = mongoose.Schema(
       required: true,
     },
     description: String,
+    shortDescription: String,
     price: Number,
     currentBid: {
       type: Number,
       default: 0,
+    },
+    currentBidUserName: {
+      type: String,
+      default: true,
     },
     likes: {
       type: Map,

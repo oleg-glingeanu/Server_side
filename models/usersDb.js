@@ -36,6 +36,7 @@ const UserSchema = new mongoose.Schema(
     reviews: {
       type: Array,
       default: [],
+      required: true,
     },
     notifications: {
       type: Array,
